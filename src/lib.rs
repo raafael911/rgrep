@@ -60,30 +60,88 @@ impl Config {
     }
 }
 
+pub struct MatchInformation {
+    words: Vec<String>,
+    line_number: usize,
+    line: String
+}
 
-/// Implementation of the search algorithm
-pub fn do_search(params: &Config) {
+impl MatchInformation {
 
-    for (line_number, line) in params.file_content.lines().enumerate() {
+    pub fn new(words: Vec<String>,
+        line_number: usize,
+        line: &str) -> MatchInformation {
 
-        for m in params.regex.find_iter(&line[..]) {
-
-            print_match(&line, line_number, &m);
+        MatchInformation {
+            words: words,
+            line_number: line_number,
+            line: String::from(line).clone()
         }
     }
 }
 
 
+/// Implementation of the search algorithm
+pub fn do_search(params: &Config) -> Vec<MatchInformation>{
+
+    let mut results = Vec::new();
+
+    for (line_number, line) in params.file_content.lines().enumerate() {
+
+        let mut matched_words = Vec::new();
+
+        for m in params.regex.find_iter(&line[..]) {
+
+            matched_words.push(String::from(m.as_str()));
+        }
+
+        if matched_words.is_empty() == false {
+
+            let match_info = MatchInformation::new(matched_words, line_number, &line);
+            results.push(match_info);
+        }
+    }
+
+    results
+}
+
+
 /// Prints a line describing a match
-fn print_match(line: &str, line_number: usize, m: &Match) {
+fn print_match(match_result: MatchInformation) {
 
-    // TODO do not print a new line for each match in a line
-    let pref = String::from(&line[0..m.start()]);
-    let inf = String::from(m.as_str());
-    let postf = String::from(&line[m.end()..]);
+    for word in match_result.words {
 
-    print!("{}: ", line_number.to_string().cyan());
-    print!("{}", pref);
-    print!("{}", inf.bright_red());
-    println!("{}", postf);
+        // let pref = String::from(&match_result.line[0..(boundary.0));
+        // let inf = String::from(m.as_str());
+        // let postf = String::from(&line[m.end()..]);
+    }
+
+    println!("{}: ", match_result.line_number);
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn two_matches() {
+        let file_content = "Lorem ipsum dolor sit amet,
+consetetur sadipscing elitr,
+sed diam nonumy eirmod tempor invidunt ut labore
+et dolore magna aliquyam erat, sed diam voluptua.";
+
+        let regex = Regex::new("li").unwrap();
+
+        let cfg = Config {
+            file_content: String::from(file_content),
+            regex: regex
+        };
+
+        assert_eq!(
+            vec!["consetetur sadipscing elitr,", "et dolore magna aliquyam erat, sed diam voluptua."],
+            do_search(&cfg).iter().map(|m| m.line.clone()).collect::<Vec<String>>()
+        );
+    }
 }
