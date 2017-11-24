@@ -1,0 +1,9 @@
+[package]
+name = "rgrep"
+version = "0.1.0"
+authors = ["Kevin Neuenfeldt <kevin.neuenfeldt@posteo.de>"]
+
+[dependencies]
+clap = "2.27.1"
+regex = "0.2"
+colored = "1.6.0"
