@@ -60,11 +60,13 @@ impl Config {
     }
 }
 
+
 pub struct MatchInformation {
     words: Vec<String>,
     line_number: usize,
     line: String
 }
+
 
 impl MatchInformation {
 
@@ -107,7 +109,7 @@ pub fn do_search(params: &Config) -> Vec<MatchInformation>{
 
 
 /// Prints a line describing a match
-fn print_match(match_result: MatchInformation) {
+pub fn print_match(match_result: MatchInformation) {
 
     for word in match_result.words {
 

@@ -6,5 +6,10 @@ fn main() {
 
     let params = Config::new();
 
-    rgrep::do_search(&params);
+    let matches = rgrep::do_search(&params);
+
+    for mat in matches {
+
+        rgrep::print_match(mat);
+    }
 }
