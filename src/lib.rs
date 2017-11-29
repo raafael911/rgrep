@@ -6,7 +6,7 @@ use colored::*;
 use std::io::prelude::*;
 use std::fs::File;
 use clap::{Arg, App};
-use regex::{Regex, Match};
+use regex::{Regex};
 
 
 /// Struct containing configuration for the search algorithm
@@ -62,7 +62,7 @@ impl Config {
 
 
 pub struct MatchInformation {
-    words: Vec<String>,
+    words: Vec<(usize,usize,String)>,
     line_number: usize,
     line: String
 }
@@ -70,7 +70,7 @@ pub struct MatchInformation {
 
 impl MatchInformation {
 
-    pub fn new(words: Vec<String>,
+    pub fn new(words: Vec<(usize,usize,String)>,
         line_number: usize,
         line: &str) -> MatchInformation {
 
@@ -94,7 +94,7 @@ pub fn do_search(params: &Config) -> Vec<MatchInformation>{
 
         for m in params.regex.find_iter(&line[..]) {
 
-            matched_words.push(String::from(m.as_str()));
+            matched_words.push((m.start(),m.end(),String::from(m.as_str())));
         }
 
         if matched_words.is_empty() == false {
@@ -111,14 +111,17 @@ pub fn do_search(params: &Config) -> Vec<MatchInformation>{
 /// Prints a line describing a match
 pub fn print_match(match_result: MatchInformation) {
 
-    for word in match_result.words {
+    let mut offset = 0;
 
-        // let pref = String::from(&match_result.line[0..(boundary.0));
-        // let inf = String::from(m.as_str());
-        // let postf = String::from(&line[m.end()..]);
+    // print!("{}: ", match_result.line_number.to_string().red()); TODO optional
+
+    for (start,end,word) in match_result.words {
+
+        print!("{}{}", &match_result.line[offset..start], word.bright_red().bold());
+        offset = end;
     }
 
-    println!("{}: ", match_result.line_number);
+    println!("{}", &match_result.line[offset..]);
 }
 
 
